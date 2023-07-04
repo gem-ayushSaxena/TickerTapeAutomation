@@ -60,8 +60,8 @@ public class StepDefinition {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
-    @Then("Select the period from timeline and fetch {string} {int} info")
-    public void selectThePeriodFromTimelineAndFetchInfo(String companyName, int num) {
+    @Then("Select the period from timeline and fetch {string} info")
+    public void selectThePeriodFromTimelineAndFetchInfo(String companyName) {
 
         String sheetName = "LogBook";
         XSSFSheet sheet = workbook.getSheet(sheetName);
@@ -69,8 +69,8 @@ public class StepDefinition {
         if(sheet == null) {
             sheet = workbook.createSheet(sheetName);
         }
-
-        int rowNum = num, colNum = 0;
+        int lastRowNum = sheet.getLastRowNum();
+        int rowNum = lastRowNum + 1, colNum = 0;
         Row row1, row2, row3, row4;
         //adding the timeStamp to the sheet
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -146,12 +146,20 @@ public class StepDefinition {
             Sheet sheet = workbook.getSheetAt(0);
 
             JSONArray jsonArray = new JSONArray();
+            System.out.println(sheet.getLastRowNum());
+            int lastRowNum = sheet.getLastRowNum() + 1;
 
-            int lastRowNum = sheet.getLastRowNum();
-            Row row0 = sheet.getRow(0);
-            Row row1 = sheet.getRow(1);
-            Row row2= sheet.getRow(2);
-            Row row3 = sheet.getRow(3);
+            Row row0 = sheet.getRow(lastRowNum + 0);
+            Row row1 = sheet.getRow(lastRowNum + 1);
+            Row row2= sheet.getRow(lastRowNum + 2);
+            Row row3 = sheet.getRow(lastRowNum + 3);
+
+            if (row0 != null && row1 != null && row2 != null && row3 != null) {
+                System.out.println("Everything is good");
+            } else {
+                // Handle the situation where one or more rows are null
+                throw new RuntimeException("One or more rows are null");
+            }
 
             JSONObject jsonObject = new JSONObject();
 
@@ -180,42 +188,42 @@ public class StepDefinition {
             System.out.println(jsonArray.toString());
 
             // 2nd Company
-            JSONArray jsonArray1 = new JSONArray();
-            Row row5 = sheet.getRow(5);
-            Row row6 = sheet.getRow(6);
-            Row row7= sheet.getRow(7);
-            Row row8 = sheet.getRow(8);
+//            JSONArray jsonArray1 = new JSONArray();
+//            Row row5 = sheet.getRow(5);
+//            Row row6 = sheet.getRow(6);
+//            Row row7= sheet.getRow(7);
+//            Row row8 = sheet.getRow(8);
+//
+//            JSONObject jsonObject1 = new JSONObject();
+//
+//            jsonObject1.put("TimeStamp", row6.getCell(0).getStringCellValue());
+//            jsonObject1.put("Company Name", row6.getCell(1).getStringCellValue());
+//            jsonObject1.put("Current Price", row6.getCell(2).getStringCellValue());
+//
+//            JSONArray scoreBoard1 = new JSONArray();
+//            for(int i = 10; i <= 15; i++){
+//                String scoreValues = row5.getCell(i).getStringCellValue() + ":" + row6.getCell(i).getStringCellValue();
+//                scoreBoard1.put(scoreValues.trim());
+//            }
+//            jsonObject1.put("ScoreBoard", scoreBoard1);
+//
+//            JSONArray priceChart1 = new JSONArray();
+//            for(int i = 3; i <= 9; i++){
+//                String priceValue = row5.getCell(i).getStringCellValue() + ":" +row6.getCell(i).getStringCellValue() + "," + row7.getCell(i).getStringCellValue() + "," + row8.getCell(i).getStringCellValue();
+//                priceChart1.put(priceValue.trim());
+//            }
+//            jsonObject1.put("PriceChart", priceChart1);
+//
+//            jsonObject1.put("PB-Ratio", row6.getCell(16).getStringCellValue());
+//            jsonObject1.put("Dividend Yield", row6.getCell(17).getStringCellValue());
+//
+//            jsonArray1.put(jsonObject1);
+//            System.out.println(jsonArray1.toString());
 
-            JSONObject jsonObject1 = new JSONObject();
-
-            jsonObject1.put("TimeStamp", row6.getCell(0).getStringCellValue());
-            jsonObject1.put("Company Name", row6.getCell(1).getStringCellValue());
-            jsonObject1.put("Current Price", row6.getCell(2).getStringCellValue());
-
-            JSONArray scoreBoard1 = new JSONArray();
-            for(int i = 10; i <= 15; i++){
-                String scoreValues = row5.getCell(i).getStringCellValue() + ":" + row6.getCell(i).getStringCellValue();
-                scoreBoard1.put(scoreValues.trim());
-            }
-            jsonObject1.put("ScoreBoard", scoreBoard1);
-
-            JSONArray priceChart1 = new JSONArray();
-            for(int i = 3; i <= 9; i++){
-                String priceValue = row5.getCell(i).getStringCellValue() + ":" +row6.getCell(i).getStringCellValue() + "," + row7.getCell(i).getStringCellValue() + "," + row8.getCell(i).getStringCellValue();
-                priceChart1.put(priceValue.trim());
-            }
-            jsonObject1.put("PriceChart", priceChart1);
-
-            jsonObject1.put("PB-Ratio", row6.getCell(16).getStringCellValue());
-            jsonObject1.put("Dividend Yield", row6.getCell(17).getStringCellValue());
-
-            jsonArray1.put(jsonObject1);
-            System.out.println(jsonArray1.toString());
-
-            try (FileOutputStream fos = new FileOutputStream("C:\\Users\\ayush.saxena\\IdeaProjects\\TickerTapeAutomation\\data.json")) {
+            try (FileOutputStream fos = new FileOutputStream("data.json")) {
                 JSONArray combinedArray = new JSONArray();
                 combinedArray.putAll(jsonArray);
-                combinedArray.putAll(jsonArray1);
+//                combinedArray.putAll(jsonArray1);
 
                 fos.write(combinedArray.toString().getBytes());
 
@@ -236,4 +244,5 @@ public class StepDefinition {
         { workbook.write(fileOut); }
         catch (IOException e) { e.printStackTrace(); }
     }
+
 }
