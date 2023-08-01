@@ -1,10 +1,10 @@
-package StepDefinitions;
+package resources;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-public class driverClass {
+public class DriverClass {
     private static WebDriver driver;
     public static WebDriver setUp (){
         if(driver == null){
